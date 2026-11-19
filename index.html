@@ -20,7 +20,7 @@ button{cursor:pointer}
 .ib.on{background:var(--acc);color:#fff;border-color:var(--acc)}
 .fs{display:flex;align-items:center;gap:4px}
 .fs input{width:clamp(70px,16vw,150px);accent-color:var(--acc)}
-main{max-width:860px;margin:0 auto;padding:14px 12px 150px}@media (max-width:700px){main{padding-bottom:240px}}
+main{max-width:860px;margin:0 auto;padding:14px 12px 150px}main{padding-bottom:110px}body.pm main{padding-bottom:230px}
 .hero{text-align:center;padding:18px 10px 8px;border:1px solid var(--line);background:var(--card);border-radius:18px;box-shadow:var(--shadow);margin-bottom:14px;background-image:radial-gradient(circle at 50% -40%,var(--hl),transparent 70%)}
 .hero .nm{font-family:QFont,serif;font-size:calc(var(--ar)*1.35);line-height:1.6;color:var(--acc)}
 .hero .sub{color:var(--mut);font-size:.9rem}
@@ -65,10 +65,10 @@ main{max-width:860px;margin:0 auto;padding:14px 12px 150px}@media (max-width:700
 .si .n{width:34px;height:34px;border-radius:10px;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:.85rem;color:var(--acc);flex:none}
 .si .m{flex:1;min-width:0}.si .m b{display:block;font-weight:600;font-size:.95rem}.si .m small{color:var(--mut)}
 .si .a{font-family:QFont,serif;font-size:1.35rem;color:var(--acc)}
-#player{position:fixed;left:0;right:0;bottom:0;z-index:25;background:var(--card);border-top:1px solid var(--line);padding:8px 10px calc(8px + env(safe-area-inset-bottom));box-shadow:0 -4px 18px rgba(0,0,0,.08)}
+#player{position:fixed;left:0;right:0;bottom:0;z-index:25;background:var(--card);border-top:1px solid var(--line);padding:4px 10px calc(4px + env(safe-area-inset-bottom));box-shadow:0 -4px 18px rgba(0,0,0,.08)}.more{display:none;flex:1 1 100%;gap:6px;flex-wrap:wrap;justify-content:center;padding:4px 0}.more.open{display:flex}
 #player .row{max-width:860px;margin:0 auto;display:flex;align-items:center;gap:6px;flex-wrap:wrap;justify-content:center}
-#player .info{font-size:.82rem;color:var(--mut);flex:1 1 100%;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-#pp{width:52px;height:52px;border-radius:50%;background:var(--acc);color:#fff;border:0;font-size:1.3rem}
+#player .info{font-size:.74rem;line-height:1.2;color:var(--mut);flex:1 1 100%;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#pp{width:42px;height:42px;border-radius:50%;background:var(--acc);color:#fff;border:0;font-size:1.1rem}#player .ib{height:36px;min-width:36px}
 .sel{border:1px solid var(--line);background:var(--bg);border-radius:10px;height:40px;padding:0 8px;max-width:46vw}
 #panel{position:fixed;right:10px;top:58px;width:min(340px,calc(100vw - 20px));background:var(--card);border:1px solid var(--line);border-radius:16px;z-index:35;padding:12px;box-shadow:0 10px 40px rgba(0,0,0,.25);display:none;max-height:calc(100vh - 80px);overflow:auto}
 #panel.open{display:block}
@@ -76,7 +76,7 @@ main{max-width:860px;margin:0 auto;padding:14px 12px 150px}@media (max-width:700
 #panel label{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:6px 0}
 #panel input[type=checkbox]{width:20px;height:20px;accent-color:var(--acc)}
 .seg{display:flex;gap:6px;flex-wrap:wrap}
-#toast{position:fixed;left:50%;bottom:130px;transform:translateX(-50%);background:#222;color:#fff;padding:8px 14px;border-radius:999px;font-size:.88rem;z-index:60;opacity:0;pointer-events:none;transition:opacity .25s;max-width:90vw;text-align:center}
+#toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:#222;color:#fff;padding:8px 14px;border-radius:999px;font-size:.88rem;z-index:60;opacity:0;pointer-events:none;transition:opacity .25s;max-width:90vw;text-align:center}
 #toast.on{opacity:1}
 .nav{display:flex;justify-content:space-between;gap:8px;margin:18px 0}
 .ok{color:var(--acc)}.bad{color:#c0392b;font-weight:600}
@@ -124,9 +124,12 @@ main{max-width:860px;margin:0 auto;padding:14px 12px 150px}@media (max-width:700
     <button id="pp" aria-label="Play or pause">▶</button>
     <button class="ib" id="next" aria-label="Next ayah">⏭</button>
     <button class="ib" id="playS" title="Play the whole surah">▶ Surah</button>
-    <select class="sel" id="rec" aria-label="Reciter"></select>
-    <select class="sel" id="spd" aria-label="Speed"><option value="0.6">0.6×</option><option value="0.75">0.75×</option><option value="1" selected>1×</option><option value="1.25">1.25×</option></select>
-    <select class="sel" id="rep" aria-label="Repeat each ayah"><option value="1">No repeat</option><option value="2">Repeat 2×</option><option value="3">Repeat 3×</option><option value="5">Repeat 5×</option><option value="10">Repeat 10×</option></select>
+    <button class="ib" id="ptog" aria-label="More audio options" aria-expanded="false">⋯</button>
+    <div class="more" id="pmore">
+      <select class="sel" id="rec" aria-label="Reciter"></select>
+      <select class="sel" id="spd" aria-label="Speed"><option value="0.6">0.6×</option><option value="0.75">0.75×</option><option value="1" selected>1×</option><option value="1.25">1.25×</option></select>
+      <select class="sel" id="rep" aria-label="Repeat each ayah"><option value="1">No repeat</option><option value="2">Repeat 2×</option><option value="3">Repeat 3×</option><option value="5">Repeat 5×</option><option value="10">Repeat 10×</option></select>
+    </div>
   </div>
 </div>
 <div id="toast"></div>
@@ -259,6 +262,7 @@ $('pp').onclick=()=>{
  if(audio.src&&queue.length){audio.paused?audio.play():audio.pause()}
  else startQueue(mkQueue(st.s,1,true),0);
 };
+$('ptog').onclick=()=>{const o=$('pmore').classList.toggle('open');document.body.classList.toggle('pm',o);$('ptog').setAttribute('aria-expanded',o)};
 $('prev').onclick=()=>step(-1);$('next').onclick=()=>step(1);
 $('playS').onclick=()=>startQueue(mkQueue(st.s,1,true),0);
 /* ---------- word audio ---------- */
