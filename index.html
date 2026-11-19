@@ -186,7 +186,7 @@ function renderSurah(n,scrollTo){
  const s=S[n-1];st.s=n;store.set('s',n);
  $('ttl').textContent=`${n}. ${s.tr} · ${jzRange(n)}`;
  const m=$('main');m.className=(st.view==='flow'?'flow ':'')+(st.tl?'':'hide-tl ')+(st.en?'':'hide-en');
- let h=`<section class="hero"><div class="nm">${esc(s.name)}</div><div><b>${esc(s.tr)}</b> — ${esc(s.en)}</div><div class="sub">${s.type==='meccan'?'Meccan':'Medinan'} · ${s.a.length} ayahs · Surah ${n} of 114</div><div class="sub"><span class="jb">${jzRange(n)}</span> starts in Juz ${jzOf(n,1)}, ends in Juz ${jzOf(n,s.a.length)}</div><div class="act"><button class="ib" id="hPlay">▶ Listen to whole surah</button></div></section>`;
+ let h=`<section class="hero"><div class="nm">${esc(s.name)}</div><div><b>${esc(s.tr)}</b> — ${esc(s.en)}</div><div class="sub">${s.type==='meccan'?'Meccan':'Medinan'} · ${s.a.length} ayahs · Surah ${n} of 114</div><div class="sub">${jzOf(n,1)===jzOf(n,s.a.length)?`<span class="jb">Juz ${jzOf(n,1)}</span> The whole surah is in this Juz`:`Starts in Juz ${jzOf(n,1)} · ends in Juz ${jzOf(n,s.a.length)}`}</div><div class="act"><button class="ib" id="hPlay">▶ Listen to whole surah</button></div></section>`;
  if(n!==1&&n!==9)h+=`<div class="bism" id="bism" title="Tap to hear">${esc(S[0].a[0])}</div>`;
  const parts=s.a.map((t,i)=>{
   const a=i+1;
