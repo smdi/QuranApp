@@ -99,6 +99,9 @@ main{max-width:860px;margin:0 auto;padding:14px 12px 150px}main{padding-bottom:1
   <label>Tap a word to hear it<input type="checkbox" id="oWd"></label>
   <label>Keep playing to the next ayah<input type="checkbox" id="oCont"></label>
   <label>Auto-scroll while playing<input type="checkbox" id="oScr"></label>
+  <h3>Word sounds</h3>
+  <div style="font-size:.82rem;color:var(--mut)">If a tapped word plays its neighbour, switch this.</div>
+  <div class="seg" style="margin-top:6px"><button class="ib" data-wm="seq">Word order (default)</button><button class="ib" data-wm="list">Quran.com list</button></div>
   <h3>Layout</h3>
   <div class="seg"><button class="ib" id="vCards">Verse by verse</button><button class="ib" id="vFlow">Continuous page</button></div>
   <h3>Theme</h3>
@@ -143,7 +146,7 @@ const S=JSON.parse(document.getElementById('qdata').textContent);
 const JZ=JSON.parse(document.getElementById('jdata').textContent);
 const WA=JSON.parse(document.getElementById('wdata').textContent);
 /* exact word-sound file number: WA[key] = list of file numbers (one per word), 0 = word audio unavailable for this ayah, missing = files are numbered 1,2,3… */
-function wordFile(s,a,k){const e=WA[s+':'+a];if(e===0)return 0;const n=e?e[k]:k+1;return n?`wbw/${String(s).padStart(3,'0')}_${String(a).padStart(3,'0')}_${String(n).padStart(3,'0')}.mp3`:0}
+function wordFile(s,a,k){const e=WA[s+':'+a];if(e===0)return 0;const n=(st.wmode==='list'&&e)?e[k]:k+1;return n?`wbw/${String(s).padStart(3,'0')}_${String(a).padStart(3,'0')}_${String(n).padStart(3,'0')}.mp3`:0}
 const jzOf=(s,a)=>{for(let i=29;i>=0;i--){const r=JZ[i];if(s>r[0]||(s===r[0]&&a>=r[1]))return i+1}return 1};
 const jzRange=n=>{const x=jzOf(n,1),y=jzOf(n,S[n-1].a.length);return x===y?'Juz '+x:'Juz '+x+'–'+y};
 const jzStartAt=(s,a)=>{const i=JZ.findIndex(r=>r[0]===s&&r[1]===a);return i<0?0:i+1};
@@ -164,7 +167,7 @@ const REC=[
 const cum=[0];S.forEach(s=>cum.push(cum[cum.length-1]+s.a.length));
 const P3=n=>String(n).padStart(3,'0');
 const arNum=n=>new Intl.NumberFormat('ar-EG').format(n);
-const st={s:store.get('s',1),a:1,font:store.get('font',34),th:store.get('th','light'),tl:store.get('tl',true),en:store.get('en',true),wd:store.get('wd',true),cont:store.get('cont',true),scr:store.get('scr',true),view:store.get('view','cards'),rec:store.get('rec',0),spd:store.get('spd',1),rep:store.get('rep',1),bm:store.get('bm',[])};
+const st={s:store.get('s',1),a:1,font:store.get('font',34),th:store.get('th','light'),tl:store.get('tl',true),en:store.get('en',true),wd:store.get('wd',true),cont:store.get('cont',true),wmode:store.get('wmode','seq'),scr:store.get('scr',true),view:store.get('view','cards'),rec:store.get('rec',0),spd:store.get('spd',1),rep:store.get('rep',1),bm:store.get('bm',[])};
 let dtab='s';let queue=[],qi=-1,repLeft=0,fb=0,wordAudio=null;
 const audio=new Audio();audio.preload='auto';
 let pre=new Audio();pre.preload='auto';
@@ -180,6 +183,7 @@ function applyPrefs(){
  const m=$('main');m.classList.toggle('hide-tl',!st.tl);m.classList.toggle('hide-en',!st.en);
  $('vCards').classList.toggle('on',st.view==='cards');$('vFlow').classList.toggle('on',st.view==='flow');
  document.querySelectorAll('[data-th]').forEach(b=>b.classList.toggle('on',b.dataset.th===st.th));
+ document.querySelectorAll('[data-wm]').forEach(b=>b.classList.toggle('on',b.dataset.wm===st.wmode));
  $('rec').value=st.rec;$('spd').value=st.spd;$('rep').value=st.rep;audio.playbackRate=st.spd;
 }
 function setFont(v){st.font=Math.max(20,Math.min(80,v));store.set('font',st.font);applyPrefs()}
@@ -313,6 +317,7 @@ const bind=(id,k)=>$(id).onchange=e=>{st[k]=e.target.checked;store.set(k,st[k]);
 bind('oTl','tl');bind('oEn','en');bind('oWd','wd');bind('oCont','cont');bind('oScr','scr');
 $('vCards').onclick=()=>{st.view='cards';store.set('view','cards');applyPrefs();renderSurah(st.s)};
 $('vFlow').onclick=()=>{st.view='flow';store.set('view','flow');applyPrefs();renderSurah(st.s)};
+document.querySelectorAll('[data-wm]').forEach(b=>b.onclick=()=>{st.wmode=b.dataset.wm;store.set('wmode',st.wmode);applyPrefs();toast(st.wmode==='seq'?'Word sounds: by word order':'Word sounds: Quran.com list')});
 document.querySelectorAll('[data-th]').forEach(b=>b.onclick=()=>{st.th=b.dataset.th;store.set('th',st.th);applyPrefs()});
 $('rec').innerHTML=REC.map((r,i)=>`<option value="${i}">${r[2]}</option>`).join('');
 $('rec').onchange=e=>{st.rec=+e.target.value;store.set('rec',st.rec);if(queue.length){const t=audio.paused;const cur=qi;playCur();if(t)audio.pause()}info()};
