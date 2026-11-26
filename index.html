@@ -97,7 +97,7 @@ main{max-width:860px;margin:0 auto;padding:14px 12px 150px}main{padding-bottom:1
   <label>Transliteration (how to pronounce)<input type="checkbox" id="oTl"></label>
   <label>English meaning<input type="checkbox" id="oEn"></label>
   <label>Tap a word to hear it<input type="checkbox" id="oWd"></label>
-  <label>Keep playing to the next ayah<input type="checkbox" id="oCont"></label>
+  <label>After one ayah, continue to the next<input type="checkbox" id="oCont"></label>
   <label>Auto-scroll while playing<input type="checkbox" id="oScr"></label>
   <h3>Word sounds</h3>
   <div style="font-size:.82rem;color:var(--mut)">If a tapped word plays its neighbour, switch this.</div>
@@ -167,7 +167,7 @@ const REC=[
 const cum=[0];S.forEach(s=>cum.push(cum[cum.length-1]+s.a.length));
 const P3=n=>String(n).padStart(3,'0');
 const arNum=n=>new Intl.NumberFormat('ar-EG').format(n);
-const st={s:store.get('s',1),a:1,font:store.get('font',34),th:store.get('th','light'),tl:store.get('tl',true),en:store.get('en',true),wd:store.get('wd',true),cont:store.get('cont',true),wmode:store.get('wmode','seq'),scr:store.get('scr',true),view:store.get('view','cards'),rec:store.get('rec',0),spd:store.get('spd',1),rep:store.get('rep',1),bm:store.get('bm',[])};
+const st={s:store.get('s',1),a:1,font:store.get('font',34),th:store.get('th','light'),tl:store.get('tl',true),en:store.get('en',true),wd:store.get('wd',true),cont:store.get('cont2',false),wmode:store.get('wmode','seq'),scr:store.get('scr',true),view:store.get('view','cards'),rec:store.get('rec',0),spd:store.get('spd',1),rep:store.get('rep',1),bm:store.get('bm',[])};
 let dtab='s';let queue=[],qi=-1,repLeft=0,fb=0,wordAudio=null;
 const audio=new Audio();audio.preload='auto';
 let pre=new Audio();pre.preload='auto';
@@ -262,9 +262,13 @@ function markPlaying(){
  if(st.scr)e.scrollIntoView({block:'center',behavior:'smooth'});
 }
 function step(d){
- if(!queue.length){queue=mkQueue(st.s,Math.max(1,st.a),false);qi=0}
- else qi=Math.max(0,Math.min(queue.length-1,qi+d));
- playCur();
+ const cur=queue[qi];
+ if(!cur){startQueue([{s:st.s,a:Math.max(1,st.a)}],0);return}
+ if(queue.length===1){ /* single-ayah mode: next/previous moves one ayah within the surah */
+  if(cur.b){if(d>0)startQueue([{s:cur.s,a:1}],0);return}
+  const n=S[cur.s-1].a.length,a=cur.a+d;if(a<1||a>n)return;
+  startQueue([{s:cur.s,a}],0);return}
+ qi=Math.max(0,Math.min(queue.length-1,qi+d));playCur();
 }
 $('pp').onclick=()=>{
  if(audio.src&&queue.length){audio.paused?audio.play():audio.pause()}
@@ -314,7 +318,7 @@ $('gear').onclick=()=>$('panel').classList.toggle('open');
 document.addEventListener('click',e=>{if(!e.target.closest('#panel')&&!e.target.closest('#gear'))$('panel').classList.remove('open')});
 $('fdn').onclick=()=>setFont(st.font-3);$('fup').onclick=()=>setFont(st.font+3);$('frng').oninput=e=>setFont(+e.target.value);
 const bind=(id,k)=>$(id).onchange=e=>{st[k]=e.target.checked;store.set(k,st[k]);applyPrefs();if(k==='tl'||k==='en')$('main').classList.toggle('hide-'+k,!st[k])};
-bind('oTl','tl');bind('oEn','en');bind('oWd','wd');bind('oCont','cont');bind('oScr','scr');
+bind('oTl','tl');bind('oEn','en');bind('oWd','wd');$('oCont').onchange=e=>{st.cont=e.target.checked;store.set('cont2',st.cont)};bind('oScr','scr');
 $('vCards').onclick=()=>{st.view='cards';store.set('view','cards');applyPrefs();renderSurah(st.s)};
 $('vFlow').onclick=()=>{st.view='flow';store.set('view','flow');applyPrefs();renderSurah(st.s)};
 document.querySelectorAll('[data-wm]').forEach(b=>b.onclick=()=>{st.wmode=b.dataset.wm;store.set('wmode',st.wmode);applyPrefs();toast(st.wmode==='seq'?'Word sounds: by word order':'Word sounds: Quran.com list')});
