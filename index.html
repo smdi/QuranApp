@@ -201,7 +201,7 @@ function renderSurah(n,scrollTo){
   const w=wordsOf(t).map((x,k)=>`<span class="w" data-k="${k}">${esc(x)}</span>`).join(' ');
   const bk=st.bm.includes(n+':'+a);const jn=jzStartAt(n,a);const jdv=jn?`<div class="jd">Juz ${jn} begins here — ${ref(n,a)}</div>`:'';
   if(st.view==='flow')return `${jdv}<span class="ay" id="a${a}" data-a="${a}"><span class="arb">${w}</span><span class="fn" data-play="${a}">${arNum(a)}</span> </span>`;
-  return `${jdv}<article class="ay" id="a${a}" data-a="${a}"><div class="bar"><span class="num">${a}</span><button class="sm" data-play="${a}" aria-label="Play ayah ${a}">▶ Play</button><span class="sp"></span><button class="sm ${bk?'on':''}" data-bm="${a}" aria-label="Bookmark">${bk?'★':'☆'}</button></div><div class="arb">${w}</div><div class="tl">${esc(s.t[i])}</div><div class="en">${esc(s.e[i])}</div></article>`;
+  return `${jdv}<article class="ay" id="a${a}" data-a="${a}"><div class="bar"><span class="num">${a}</span><button class="sm" data-play="${a}" aria-label="Play ayah ${a}">▶ Play</button><button class="sm" data-from="${a}" aria-label="Play from ayah ${a} to the end of the surah">⏩ From here</button><span class="sp"></span><button class="sm ${bk?'on':''}" data-bm="${a}" aria-label="Bookmark">${bk?'★':'☆'}</button></div><div class="arb">${w}</div><div class="tl">${esc(s.t[i])}</div><div class="en">${esc(s.e[i])}</div></article>`;
  });
  h+=st.view==='flow'?`<div class="flowwrap">${parts.join('')}</div>`:parts.join('');
  h+=`<div class="nav"><button class="ib" id="np" ${n===1?'disabled':''}>← Previous surah</button><button class="ib" id="nn" ${n===114?'disabled':''}>Next surah →</button></div>`;
@@ -219,10 +219,10 @@ function buildList(filter){
  $('sl').innerHTML=S.filter(s=>!f||String(s.n)===f||s.tr.toLowerCase().includes(f)||s.en.toLowerCase().includes(f)||s.name.includes(f)).map(s=>`<button class="si ${s.n===st.s?'cur':''}" data-n="${s.n}"><span class="n">${s.n}</span><span class="m"><b>${esc(s.tr)}<span class="jb">${jzRange(s.n)}</span></b><small>${esc(s.en)} · ${s.a.length} ayahs</small></span><span class="a">${esc(s.name)}</span></button>`).join('')||'<p style="padding:14px;color:var(--mut)">No match</p>';
 }
 /* ---------- player ---------- */
-function mkQueue(s,a,all){
+function mkQueue(s,a,all,fc){
  const q=[];const n=S[s-1].a.length;
  if(all){if(s!==1&&s!==9)q.push({s,a:1,b:true});for(let i=1;i<=n;i++)q.push({s,a:i})}
- else if(st.cont){for(let i=a;i<=n;i++)q.push({s,a:i})}else q.push({s,a});
+ else if(st.cont||fc){for(let i=a;i<=n;i++)q.push({s,a:i})}else q.push({s,a});
  return q;
 }
 function startQueue(q,from){queue=q;qi=from||0;playCur()}
@@ -298,6 +298,8 @@ $('main').addEventListener('click',e=>{
  if(pl){const a=+pl.dataset.play;const cur=queue[qi];
   if(cur&&cur.s===st.s&&cur.a===a&&!cur.b&&!audio.paused){audio.pause();return}
   startQueue(mkQueue(st.s,a,false),0);return}
+ const fr=t.closest('[data-from]');
+ if(fr){startQueue(mkQueue(st.s,+fr.dataset.from,false,true),0);return}
  const bk=t.closest('[data-bm]');
  if(bk){const key=st.s+':'+bk.dataset.bm;const i=st.bm.indexOf(key);i<0?st.bm.push(key):st.bm.splice(i,1);store.set('bm',st.bm);bk.textContent=i<0?'★':'☆';bk.classList.toggle('on',i<0);toast(i<0?'Bookmarked':'Bookmark removed');return}
  const w=t.closest('.w');
